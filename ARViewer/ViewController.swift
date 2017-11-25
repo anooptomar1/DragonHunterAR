@@ -20,6 +20,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
     
     var player: AVAudioPlayer!
     
+    var wolfNode: SCNNode!
+    
     private var userScore: Int = 0 {
         didSet {
             // ensure UI update runs on main thread
@@ -45,8 +47,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         sceneView.scene = scene
         sceneView.scene.physicsWorld.contactDelegate = self
         
-        self.addNewShip()
-        
         self.userScore = 0
     }
     
@@ -70,14 +70,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
 
     // MARK: - ARSCNViewDelegate
     
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let node = SCNNode()
-     
-        return node
-    }
-*/
+//    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+//        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+//        print(planeAnchor)
+//        //let planeNode = createARPlaneNode(anchor: planeAnchor)
+//        //node.addChildNode(planeNode)
+//    }
+    
+//    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+//        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+//        print(planeAnchor)
+////        let planeNode = createARPlaneNode(anchor: planeAnchor)
+////        node.addChildNode(planeNode)
+//    }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user
@@ -94,27 +99,50 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         
     }
     
-/*
-     // ARKit detects planes in the Real World to serve as anchors--we can add a node manually to visualize them.
+    func renderer(_ renderer: SCNSceneRenderer, willUpdate node: SCNNode, for anchor: ARAnchor) {
+        
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+        
+    }
+    
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        
-        // This visualization covers only detected planes.
         guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-        print("flat plane detected")
-        
-        // Create a SceneKit plane to visualize the node using its position and extent.
-        let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
-        let planeNode = SCNNode(geometry: plane)
-        planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
-        
-        // SCNPlanes are vertically oriented in their local coordinate space.
-        // Rotate it to match the horizontal orientation of the ARPlaneAnchor.
-        planeNode.transform = SCNMatrix4MakeRotation(-Float.pi / 2, 1, 0, 0)
-        
-        // ARKit owns the node corresponding to the anchor, so make the plane a child node.
+        let planeNode = createARPlaneNode(anchor: planeAnchor)
         node.addChildNode(planeNode)
     }
- */
+    
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+        // remove existing plane nodes
+        node.enumerateChildNodes { (childNode, _) in
+            childNode.removeFromParentNode()
+        }
+        let planeNode = createARPlaneNode(anchor: planeAnchor)
+        node.addChildNode(planeNode)
+    }
+    
+     // ARKit detects planes in the Real World to serve as anchors--we can add a node manually to visualize them.
+//    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+//
+//        // This visualization covers only detected planes.
+//        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+//        print("flat plane detected")
+//
+//        // Create a SceneKit plane to visualize the node using its position and extent.
+//        let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
+//        let planeNode = SCNNode(geometry: plane)
+//        planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
+//
+//        // SCNPlanes are vertically oriented in their local coordinate space.
+//        // Rotate it to match the horizontal orientation of the ARPlaneAnchor.
+//        planeNode.transform = SCNMatrix4MakeRotation(-Float.pi / 2, 1, 0, 0)
+//
+//        // ARKit owns the node corresponding to the anchor, so make the plane a child node.
+//        node.addChildNode(planeNode)
+//    }
+
     
     // MARK: - Actions
     
@@ -142,7 +170,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
                                                             // equivalent to `if utsname().hasAtLeastA9()`
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
-        configuration.planeDetection = ARWorldTrackingConfiguration.PlaneDetection.horizontal
+        configuration.planeDetection = .horizontal
         
         // Run the view's session
         sceneView.session.run(configuration)
@@ -240,6 +268,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
                 print(error.description)
             }
         }
+    }
+    
+    func createARPlaneNode(anchor: ARPlaneAnchor) -> SCNNode {
+        let pos = SCNVector3Make(anchor.transform.columns.3.x, anchor.transform.columns.3.y, anchor.transform.columns.3.z)
+        //        print("New surface detected at \(pos)")
+        
+        // Create the geometry and its materials
+        let plane = SCNPlane(width: CGFloat(anchor.extent.x), height: CGFloat(anchor.extent.z))
+        let grassImage = UIImage(named: "grass")
+        let grassMaterial = SCNMaterial()
+        grassMaterial.diffuse.contents = grassImage
+        grassMaterial.isDoubleSided = true
+        plane.materials = [grassMaterial]
+        // Create a plane node with the plane geometry
+        let planeNode = SCNNode(geometry: plane)
+        planeNode.position = pos
+        planeNode.transform = SCNMatrix4MakeRotation(-Float.pi / 2, 1, 0, 0)
+        
+        // add the wolf to pos of the plane node
+        if wolfNode == nil {
+            if let wolfScene = SCNScene(named: "art.scnassets/wolf.dae") {
+                wolfNode = wolfScene.rootNode.childNode(withName: "wolf", recursively: true)
+                wolfNode.position = pos
+                sceneView.scene.rootNode.addChildNode(wolfNode!)
+                self.addNewShip()
+            }
+        }
+        return planeNode
     }
     
 }
