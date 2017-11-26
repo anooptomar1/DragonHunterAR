@@ -21,6 +21,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
     var player: AVAudioPlayer!
     
     var wolfNode: SCNNode!
+    var timer = Timer()
     
     private var userScore: Int = 0 {
         didSet {
@@ -113,15 +114,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         node.addChildNode(planeNode)
     }
     
-    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-        // remove existing plane nodes
-        node.enumerateChildNodes { (childNode, _) in
-            childNode.removeFromParentNode()
-        }
-        let planeNode = createARPlaneNode(anchor: planeAnchor)
-        node.addChildNode(planeNode)
-    }
+//    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+//        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+//        // remove existing plane nodes
+//        node.enumerateChildNodes { (childNode, _) in
+//            childNode.removeFromParentNode()
+//        }
+//        let planeNode = createARPlaneNode(anchor: planeAnchor)
+//        node.addChildNode(planeNode)
+//    }
     
      // ARKit detects planes in the Real World to serve as anchors--we can add a node manually to visualize them.
 //    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
@@ -183,6 +184,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         }
     }
     
+//    func startSpawn() {
+//        <#function body#>
+//    }
+    
     func addNewShip() {
         let cubeNode = Ship()
         
@@ -190,6 +195,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         let posY = floatBetween(-0.5, and: 0.5  )
         cubeNode.position = SCNVector3(posX, posY, -1) // SceneKit/AR coordinates are in meters
         sceneView.scene.rootNode.addChildNode(cubeNode)
+        cubeNode.physicsBody?.velocity = (wolfNode.position - cubeNode.position).normalized * 0.25
+        
     }
     
     func removeNodeWithAnimation(_ node: SCNNode, explosion: Bool) {
@@ -245,8 +252,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
                 self.removeNodeWithAnimation(contact.nodeA, explosion: true)
                 self.addNewShip()
             })
-            
         }
+        
+        if contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.princess.rawValue {
+            self.removeNodeWithAnimation(contact.nodeB, explosion: false) // remove the bullet
+        }
+        
+        if contact.nodeB.physicsBody?.categoryBitMask == CollisionCategory.princess.rawValue {
+            self.removeNodeWithAnimation(contact.nodeA, explosion: false) // remove the bullet
+        }
+        
     }
     
     // MARK: - Sound Effects
@@ -288,10 +303,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         
         // add the wolf to pos of the plane node
         if wolfNode == nil {
-            if let wolfScene = SCNScene(named: "art.scnassets/wolf.dae") {
-                wolfNode = wolfScene.rootNode.childNode(withName: "wolf", recursively: true)
+            if let wolfScene = SCNScene(named: "a_princess.scnassets/princess.dae") {
+                wolfNode = wolfScene.rootNode.childNode(withName: "princess", recursively: true)
                 wolfNode.position = pos
+                wolfNode.scale = SCNVector3Make(0.0005, 0.0005, 0.0005)
                 sceneView.scene.rootNode.addChildNode(wolfNode!)
+                
+                let box = SCNBox(width: 0.001, height: 0.001, length: 0.001, chamferRadius: 0)
+                wolfNode.geometry = box
+                let shape = SCNPhysicsShape(geometry: box, options: nil)
+                wolfNode.physicsBody = SCNPhysicsBody(type: .dynamic, shape: shape)
+                wolfNode.physicsBody?.isAffectedByGravity = false
+                
+                // see http://texnotes.me/post/5/ for details on collisions and bit masks
+                wolfNode.physicsBody?.categoryBitMask = CollisionCategory.princess.rawValue
+                wolfNode.physicsBody?.contactTestBitMask = CollisionCategory.princess.rawValue
+                
                 self.addNewShip()
             }
         }
@@ -305,6 +332,7 @@ struct CollisionCategory: OptionSet {
     
     static let bullets  = CollisionCategory(rawValue: 1 << 0) // 00...01
     static let ship = CollisionCategory(rawValue: 1 << 1) // 00..10
+    static let princess = CollisionCategory(rawValue: 2 << 2) // 00..10
 }
 
 extension utsname {

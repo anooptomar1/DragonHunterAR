@@ -19,7 +19,10 @@
 		06DFA2B61F096CBA0009A530 /* torpedo.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 06DFA2B31F0968BD0009A530 /* torpedo.mp3 */; };
 		06FA0DB61EE7628F0051FC68 /* Ship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FA0DB51EE7628F0051FC68 /* Ship.swift */; };
 		06FA0DB81EE763F50051FC68 /* Bullet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FA0DB71EE763F50051FC68 /* Bullet.swift */; };
+		CE25966D1FCAEB3F0041C981 /* dragon.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = CE25966C1FCAEB3E0041C981 /* dragon.scnassets */; };
 		CE6D930C1FC984AA005B2463 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = CE6D930B1FC984AA005B2463 /* art.scnassets */; };
+		CE6D930E1FC9947D005B2463 /* SCNVector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6D930D1FC9947C005B2463 /* SCNVector3.swift */; };
+		CEE886B61FCAD941004F48CC /* a_princess.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = CEE886B51FCAD941004F48CC /* a_princess.scnassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +40,10 @@
 		06DFA2B31F0968BD0009A530 /* torpedo.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = torpedo.mp3; sourceTree = "<group>"; };
 		06FA0DB51EE7628F0051FC68 /* Ship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ship.swift; sourceTree = "<group>"; };
 		06FA0DB71EE763F50051FC68 /* Bullet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bullet.swift; sourceTree = "<group>"; };
+		CE25966C1FCAEB3E0041C981 /* dragon.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = dragon.scnassets; sourceTree = "<group>"; };
 		CE6D930B1FC984AA005B2463 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
+		CE6D930D1FC9947C005B2463 /* SCNVector3.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SCNVector3.swift; sourceTree = "<group>"; };
+		CEE886B51FCAD941004F48CC /* a_princess.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = a_princess.scnassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +76,9 @@
 		06C51BE61EE68B41006AC09A /* ARViewer */ = {
 			isa = PBXGroup;
 			children = (
+				CE25966C1FCAEB3E0041C981 /* dragon.scnassets */,
+				CEE886B51FCAD941004F48CC /* a_princess.scnassets */,
+				CE6D930D1FC9947C005B2463 /* SCNVector3.swift */,
 				CE6D930B1FC984AA005B2463 /* art.scnassets */,
 				06C51BE71EE68B41006AC09A /* AppDelegate.swift */,
 				06C51BEB1EE68B41006AC09A /* ViewController.swift */,
@@ -150,6 +159,8 @@
 				CE6D930C1FC984AA005B2463 /* art.scnassets in Resources */,
 				06C51BF41EE68B41006AC09A /* LaunchScreen.storyboard in Resources */,
 				06325E391EE8420E00F0D093 /* explosion.scnp in Resources */,
+				CEE886B61FCAD941004F48CC /* a_princess.scnassets in Resources */,
+				CE25966D1FCAEB3F0041C981 /* dragon.scnassets in Resources */,
 				06DFA2B41F096CB40009A530 /* collision.mp3 in Resources */,
 				06DFA2B51F096CB70009A530 /* explosion.mp3 in Resources */,
 				06C51BF11EE68B41006AC09A /* Assets.xcassets in Resources */,
@@ -166,6 +177,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				06C51BEC1EE68B41006AC09A /* ViewController.swift in Sources */,
+				CE6D930E1FC9947D005B2463 /* SCNVector3.swift in Sources */,
 				06FA0DB61EE7628F0051FC68 /* Ship.swift in Sources */,
 				06C51BE81EE68B41006AC09A /* AppDelegate.swift in Sources */,
 				06FA0DB81EE763F50051FC68 /* Bullet.swift in Sources */,
